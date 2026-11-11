@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZapDesk — Atendimento automático no WhatsApp</title>
+  <meta name="description" content="Atendimento automático pelo WhatsApp com a API oficial da Meta, FAQs aprovadas, atendimento humano e API para integrar seus sistemas.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23128C7E'/%3E%3Cpath d='M9 22l1.5-4A7 7 0 1 1 14 21.5z' fill='white'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #ffffff; --bg-2: #f4f8f7; --text: #14202a; --muted: #56636e; --border: #dfe7e5;
+      --primary: #128c7e; --primary-2: #0b6b60; --primary-soft: #e2f3f0; --accent: #25d366; --card: #ffffff;
+      --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0e1417; --bg-2: #131c20; --text: #e7edf0; --muted: #9eabb4; --border: #24323a; --primary: #2cbfa9; --primary-2: #5fd6c3; --primary-soft: #143630; --card: #162126; --shadow: none; color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font); }
+    a { color: var(--primary); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    header.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+    header.top .wrap { display: flex; align-items: center; gap: 24px; height: 62px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; font-size: 18px; color: var(--text); text-decoration: none; }
+    .logo { width: 30px; height: 30px; border-radius: 9px; background: var(--primary); display: grid; place-items: center; color: #fff; font-size: 16px; }
+    nav.links { display: flex; gap: 20px; margin-left: auto; }
+    nav.links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+    nav.links a:hover { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 650; text-decoration: none; border: 1px solid var(--border); color: var(--text); background: var(--card); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-2); border-color: var(--primary-2); }
+    .hero { padding: 72px 0 56px; background: linear-gradient(180deg, var(--primary-soft), var(--bg) 70%); }
+    .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+    .eyebrow { display: inline-block; font-size: 13px; font-weight: 650; color: var(--primary); background: var(--card); border: 1px solid var(--border); padding: 4px 12px; border-radius: 999px; margin-bottom: 18px; }
+    h1 { font-size: clamp(32px, 4.6vw, 52px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -.02em; }
+    .lead { font-size: 19px; color: var(--muted); margin: 0 0 28px; max-width: 560px; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .phone { background: var(--card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; max-width: 380px; margin-left: auto; width: 100%; }
+    .phone-head { background: var(--primary); color: #fff; padding: 14px 16px; font-weight: 650; display: flex; align-items: center; gap: 10px; }
+    .phone-head small { display: block; font-weight: 400; opacity: .85; font-size: 12px; }
+    .chat { padding: 16px; display: flex; flex-direction: column; gap: 8px; background: var(--bg-2); min-height: 340px; }
+    .b { max-width: 82%; padding: 8px 12px; border-radius: 12px; font-size: 14.5px; line-height: 1.45; }
+    .b.in { background: var(--card); border: 1px solid var(--border); align-self: flex-start; }
+    .b.out { background: var(--primary-soft); align-self: flex-end; }
+    .b.sys { align-self: center; font-size: 12px; color: var(--muted); background: transparent; border: 1px dashed var(--border); }
+    section { padding: 72px 0; }
+    section.alt { background: var(--bg-2); }
+    h2 { font-size: clamp(26px, 3vw, 36px); margin: 0 0 12px; letter-spacing: -.01em; }
+    .sub { color: var(--muted); max-width: 680px; margin: 0 0 36px; font-size: 17px; }
+    .grid { display: grid; gap: 18px; }
+    .g3 { grid-template-columns: repeat(3, 1fr); }
+    .g2 { grid-template-columns: repeat(2, 1fr); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); }
+    .card h3 { margin: 10px 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-size: 20px; }
+    .steps { counter-reset: s; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .step { position: relative; padding-top: 44px; }
+    .step::before { counter-increment: s; content: counter(s); position: absolute; top: 0; left: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; }
+    .step h3 { margin: 0 0 6px; font-size: 17px; }
+    .step p { margin: 0; color: var(--muted); font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; font-size: 15px; }
+    th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--bg-2); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    .tag { display: inline-block; font-size: 12px; font-weight: 650; padding: 2px 9px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+    ul.check { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    ul.check li { padding-left: 28px; position: relative; }
+    ul.check li::before { content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: 800; }
+    pre { background: #0f1a1f; color: #d7e6e3; padding: 18px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.55; margin: 0; }
+    .note { font-size: 14px; color: var(--muted); margin-top: 16px; }
+    .final { text-align: center; }
+    .final .cta { justify-content: center; }
+    footer { border-top: 1px solid var(--border); padding: 28px 0; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    @media (max-width: 900px) {
+      .hero .wrap, .g2 { grid-template-columns: 1fr; }
+      .g3 { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .phone { margin: 0 auto; }
+      nav.links { display: none; }
+    }
+    @media (max-width: 560px) {
+      .g3, .steps { grid-template-columns: 1fr; }
+      .hero { padding-top: 48px; }
+      th, td { padding: 10px; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><span class="logo" aria-hidden="true">✆</span>ZapDesk</a>
+      <nav class="links" aria-label="Seções">
+        <a href="#recursos">Recursos</a>
+        <a href="#como">Como funciona</a>
+        <a href="#ia">Atendimento automático</a>
+        <a href="#custos">Custos</a>
+        <a href="#api">API</a>
+      </nav>
+      <a class="btn primary" href="#contato">Fale conosco</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">API oficial do WhatsApp · sem intermediários</span>
+          <h1>Atendimento automático no WhatsApp, do jeito certo.</h1>
+          <p class="lead">Responda dúvidas frequentes na hora, passe para uma pessoa quando precisar e integre com os seus sistemas — tudo conectado diretamente à API oficial da Meta.</p>
+          <div class="cta">
+            <a class="btn primary" href="#contato">Quero conhecer</a>
+            <a class="btn" href="#como">Ver como funciona</a>
+          </div>
+        </div>
+        <div class="phone" role="img" aria-label="Exemplo de conversa com o assistente virtual">
+          <div class="phone-head"><span class="logo" aria-hidden="true" style="background:#fff;color:#128c7e">✆</span><div>Suporte App de Agendamentos<small>assistente virtual</small></div></div>
+          <div class="chat">
+            <div class="b in">Oi! Preciso remarcar meu horário</div>
+            <div class="b out">Olá! Eu sou o assistente virtual do App de Agendamentos. Para remarcar, abra o app, toque em <b>Meus agendamentos</b>, escolha o horário e toque em <b>Remarcar</b>.</div>
+            <div class="b in">E se eu quiser falar com alguém?</div>
+            <div class="b out">Claro! Vou encaminhar sua conversa para a nossa equipe. Alguém responde por aqui em breve.</div>
+            <div class="b sys">Ana (suporte) assumiu a conversa</div>
+            <div class="b out">Oi, aqui é a Ana! Como posso ajudar?</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="recursos">
+      <div class="wrap">
+        <h2>Tudo o que o seu suporte precisa, sem excesso</h2>
+        <p class="sub">Um conjunto enxuto de funções completas, pensado para quem tem um ou vários produtos digitais.</p>
+        <div class="grid g3">
+          <div class="card"><div class="ico" aria-hidden="true">⚡</div><h3>Respostas imediatas</h3><p>FAQs aprovadas pela sua equipe respondem as perguntas mais comuns a qualquer hora, sem custo de inteligência artificial.</p></div>
+          <div class="card"><div class="ico" aria-hidden="true">🙋</div><h3>Atendimento humano</h3><p>Caixa de entrada com histórico. Um clique em “Assumir” para o bot na hora — inclusive respostas que ainda estavam sendo geradas.</p></div>
+          <div class="card"><div class="ico" aria-hidden="true">▦</div><h3>Vários produtos</h3><p>Um número por produto ou vários produtos no mesmo número. Quando não dá para saber o assunto com segurança, o bot pergunta.</p></div>
+          <div class="card"><div class="ico" aria-hidden="true">🔒</div><h3>Integração segura</h3><p>Consulte pedidos, assinaturas e chamados nos seus sistemas só depois que o cliente se identifica no seu próprio login.</p></div>
+          <div class="card"><div class="ico" aria-hidden="true">☑</div><h3>Chamados</h3><p>Todo encaminhamento vira um chamado com responsável e status. Também dá para abrir chamados pela API.</p></div>
+          <div class="card"><div class="ico" aria-hidden="true">▤</div><h3>Custos sob controle</h3><p>Consumo medido, alertas e limites rígidos por mês. Ao atingir o limite, nada que gere despesa continua rodando.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="como" class="alt">
+      <div class="wrap">
+        <h2>Como funciona</h2>
+        <p class="sub">Da configuração ao primeiro atendimento, sem precisar programar.</p>
+        <div class="steps">
+          <div class="step"><h3>Configure</h3><p>Cadastre seus produtos, perguntas frequentes e políticas de atendimento. Nada vai ao ar sem revisão.</p></div>
+          <div class="step"><h3>Conecte</h3><p>Ligue seu número pelo processo oficial da Meta. Teste antes no simulador, sem enviar nada de verdade.</p></div>
+          <div class="step"><h3>Publique o botão</h3><p>Cole o botão de WhatsApp no seu site. A conversa só começa quando o visitante decide enviar a mensagem.</p></div>
+          <div class="step"><h3>Atenda</h3><p>O assistente responde o que sabe e encaminha o resto para a sua equipe, com todo o histórico.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ia">
+      <div class="wrap">
+        <h2>Automação que não inventa resposta</h2>
+        <p class="sub">Escolha o nível de automação de cada produto. Todos usam apenas informações aprovadas pela sua equipe.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Modo</th><th>Como responde</th><th>Custo de IA</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag">A</span> Regras e FAQs</td><td>Menus, palavras-chave e respostas aprovadas. Previsível; quando tem dúvida, pergunta ou encaminha.</td><td>Nenhum</td></tr>
+              <tr><td><span class="tag">B</span> IA local</td><td>Modelo rodando no seu próprio servidor, sem enviar dados para fora.</td><td>Sem cobrança por uso (energia e hardware)</td></tr>
+              <tr><td><span class="tag">C</span> IA por API</td><td>Provedor externo de IA, com consumo medido e limite de gastos.</td><td>Por uso, conforme o provedor</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid g2" style="margin-top:28px">
+          <ul class="check">
+            <li>O assistente sempre se identifica como virtual.</li>
+            <li>Respostas da IA precisam citar o conteúdo aprovado; preços, prazos ou links que não estão nas fontes são descartados.</li>
+            <li>Mensagens de clientes não alteram as regras do assistente.</li>
+          </ul>
+          <ul class="check">
+            <li>Se a IA falha ou o limite é atingido, o atendimento continua pelo modo de regras.</li>
+            <li>Conhecimento separado por empresa e por produto.</li>
+            <li>Fontes usadas em cada resposta ficam registradas para auditoria.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="custos" class="alt">
+      <div class="wrap">
+        <h2>Transparência sobre custos</h2>
+        <p class="sub">Sem promessa de uso ilimitado. Você sabe o que é gratuito, o que é cobrado e por quem.</p>
+        <div class="grid g3">
+          <div class="card"><h3>WhatsApp (Meta)</h3><p>A Meta cobra por mensagem conforme categoria e país, com franquias mensais de mensagens de serviço por número. A cobrança é feita diretamente pela Meta, sem taxa de intermediário.</p></div>
+          <div class="card"><h3>Inteligência artificial</h3><p>Opcional. O modo por regras não tem custo de IA. Com IA por API, o consumo é medido e limitado por mês.</p></div>
+          <div class="card"><h3>Hospedagem</h3><p>Roda em um servidor simples. O painel mostra estimativas de consumo; a fatura oficial é sempre a de cada fornecedor.</p></div>
+        </div>
+        <p class="note">Valores e regras de cobrança da Meta mudam periodicamente. Consulte a tabela oficial vigente.</p>
+      </div>
+    </section>
+
+    <section id="api">
+      <div class="wrap grid g2" style="align-items:center">
+        <div>
+          <h2>API para os seus sites e produtos</h2>
+          <p class="sub" style="margin-bottom:20px">API REST versionada com documentação OpenAPI, chaves com escopos, rotação e revogação.</p>
+          <ul class="check">
+            <li>Envie mensagens e templates aprovados.</li>
+            <li>Consulte conversas, encaminhe para humano e abra chamados.</li>
+            <li>Confirme a identidade dos seus clientes a partir do seu login.</li>
+            <li>Idempotência em todos os envios: repetir uma chamada não duplica mensagens.</li>
+          </ul>
+        </div>
+        <pre><code>curl -X POST https://seu-dominio/v1/tickets \
+  -H "Authorization: Bearer $ZAPDESK_KEY" \
+  -H "Idempotency-Key: pedido-1234" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subject": "Erro no pagamento",
+    "priority": "high"
+  }'</code></pre>
+      </div>
+    </section>
+
+    <section id="contato" class="alt final">
+      <div class="wrap">
+        <h2>Vamos conversar?</h2>
+        <p class="sub" style="margin-left:auto;margin-right:auto">O ZapDesk está em fase inicial, atendendo primeiro os nossos próprios produtos. Fale com a gente para saber quando ele estiver disponível para a sua empresa.</p>
+        <div class="cta">
+          <!-- CONFIGURAR: substitua o href pelo seu contato oficial (ex.: https://wa.me/55DDDNUMERO ou mailto:contato@seudominio) -->
+          <a class="btn primary" href="#contato" id="contact-link">Fale conosco</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© <span id="y">2026</span> ZapDesk</span>
+      <span>WhatsApp é uma marca registrada da Meta Platforms, Inc. O ZapDesk não é afiliado à Meta.</span>
+    </div>
+  </footer>
+</body>
+</html>
