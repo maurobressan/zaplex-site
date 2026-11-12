@@ -133,6 +133,10 @@
     footer { border-top: 1px solid var(--border); padding: 32px 0; color: var(--muted); font-size: 14px; }
     footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
     footer img { height: 26px; }
+    .credit { width: 100%; display: flex; justify-content: center; padding-top: 18px; border-top: 1px solid var(--border); }
+    .made-by { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; }
+    .made-by .nx { display: block; width: 200px; height: 34px; overflow: hidden; position: relative; background: #000; border-radius: 8px; }
+    footer .made-by .nx img { position: absolute; height: 134px; width: auto; max-width: none; left: -19px; top: -48px; }
 
     @media (max-width: 960px) {
       .hero .wrap, .g2 { grid-template-columns: 1fr; }
@@ -334,6 +338,9 @@
     <div class="wrap">
       <img class="logo-light" src="zaplex-logo.webp" alt="Zaplex" width="78" height="26">
       <span>© 2026 Zaplex · WhatsApp é uma marca registrada da Meta Platforms, Inc. O Zaplex não é afiliado à Meta.</span>
+      <div class="credit">
+        <span class="made-by">Uma ferramenta criada pela <span class="nx"><img src="nacavix-logo.webp" alt="Nacavix" width="238" height="134"></span></span>
+      </div>
     </div>
   </footer>
 </body>
